@@ -12,6 +12,7 @@ const getEntry = async (id) => {
       },
     },
   });
+
   return entry;
 };
 

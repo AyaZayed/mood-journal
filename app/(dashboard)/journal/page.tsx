@@ -2,7 +2,6 @@ import EntryCard from "@/components/EntryCard";
 import NewEntryCard from "@/components/NewEntryCard";
 import { getUserByClerkId } from "@/utils/auth";
 import { prisma } from "@/utils/db";
-import { currentUser } from "@clerk/nextjs/dist/types/server";
 import Link from "next/link";
 
 const getEntries = async () => {
@@ -15,6 +14,7 @@ const getEntries = async () => {
       createdAt: "desc",
     },
   });
+
   return entries;
 };
 
