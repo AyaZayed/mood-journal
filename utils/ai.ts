@@ -1,116 +1,15 @@
-// // import { StructuredTool } from "@langchain/core/tools";
-// // import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-// // import { z } from "zod";
-
-// // const model = new ChatGoogleGenerativeAI({
-// //   model: "gemini-pro",
-// //   temperature: 0.5,
-// // });
-
-// // // Define your tool
-// // class MoodAnalyzer extends StructuredTool {
-// //   schema = z.object({
-// //     mood: z
-// //       .string()
-// //       .describe("the mood of the person who wrote the journal entry."),
-// //     subject: z.string().describe("the subject of the journal entry."),
-// //     negative: z
-// //       .boolean()
-// //       .describe(
-// //         "is the journal entry negative? (i.e. does it contain negative emotions?)."
-// //       ),
-// //     summary: z.string().describe("quick summary of the entire entry."),
-// //     color: z
-// //       .string()
-// //       .describe(
-// //         "a hexidecimal color code that represents the mood of the entry. Example #0101fe for blue representing happiness."
-// //       ),
-// //     sentimentScore: z
-// //       .number()
-// //       .describe(
-// //         "sentiment of the text and rated on a scale from -10 to 10, where -10 is extremely negative, 0 is neutral, and 10 is extremely positive."
-// //       ),
-// //   });
-
-// //   name = "mood_analyzer";
-
-// //   description =
-// //     "useful for when you need to find something on the web or summarize a webpage.";
-
-// //   async _call(_: z.infer<this["schema"]>): Promise<string> {
-// //     return "mood_analyzer";
-// //   }
-// // }
-// // const tool = new MoodAnalyzer();
-
-// // // Bind your tools to the model
-// // const modelWithTools = model.withStructuredOutput(tool.schema, {
-// //   name: tool.name, // this is optional
-// // });
-
-// // export const analyze = async (entry = "") => {
-// //   const res = await modelWithTools.invoke([["human", entry]]);
-// //   return res;
-// // };
-
-// import { ChatVertexAI } from "@langchain/google-vertexai";
-// import { type GeminiTool } from "@langchain/google-vertexai/types";
-// import { zodToGeminiParameters } from "@langchain/google-vertexai/utils";
-// import { z } from "zod";
-
-// const calculatorSchema = z.object({
-//   operation: z
-//     .enum(["add", "subtract", "multiply", "divide"])
-//     .describe("The type of operation to execute"),
-//   number1: z.number().describe("The first number to operate on."),
-//   number2: z.number().describe("The second number to operate on."),
-// });
-
-// const geminiCalculatorTool: GeminiTool = {
-//   functionDeclarations: [
-//     {
-//       name: "calculator",
-//       description: "A simple calculator tool",
-//       parameters: zodToGeminiParameters(calculatorSchema),
-//     },
-//   ],
-// };
-
-// const model = new ChatVertexAI({
-//   authOptions: {
-//     credentials: {
-//       type: "service_account",
-//       project_id: `${process.env.VERTEXAI_PROJECT_ID}`,
-//     },
-//   },
-//   temperature: 0.7,
-//   model: "gemini-1.5-flash-001",
-// }).bind({
-//   tools: [geminiCalculatorTool],
-// });
-
-// export const analyze = async (entry = "") => {
-//   const response = await model.invoke(entry);
-//   console.log(JSON.stringify(response.additional_kwargs, null, 2));
-// };
-// /*
-// {
-//   "tool_calls": [
-//     {
-//       "id": "calculator",
-//       "type": "function",
-//       "function": {
-//         "name": "calculator",
-//         "arguments": "{\"number2\":81623836,\"number1\":1628253239,\"operation\":\"multiply\"}"
-//       }
-//     }
-//   ],
-// }
-//  */
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  ChatGoogleGenerativeAI,
+  GoogleGenerativeAIEmbeddings,
+} from "@langchain/google-genai";
+import { TaskType } from "@google/generative-ai";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { Document } from "langchain/document";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
 
 async function makeApiRequest(mood, subject, negative, summary, color) {
-  // This hypothetical API returns a JSON such as:
-  // {"base":"USD","rates":{"SEK": 0.091}}
   return {
     mood: mood,
     summary: summary,
@@ -142,7 +41,8 @@ const analyzeSchema = {
       },
       summary: {
         type: "STRING",
-        description: "The summary of the journal entry.",
+        description:
+          "The summary of the journal entry from the perspective of the author",
       },
       color: {
         type: "STRING",
@@ -162,7 +62,6 @@ const functions = {
   },
 };
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 // Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
@@ -179,6 +78,7 @@ const generativeModel = genAI.getGenerativeModel({
 });
 
 export const analyze = async (entry = "") => {
+  console.log(GoogleGenerativeAI);
   const chat = generativeModel.startChat();
   const prompt = `Analyze this journal entry :` + entry;
 
@@ -193,4 +93,36 @@ export const analyze = async (entry = "") => {
   } catch (e) {
     console.log(e);
   }
+};
+
+export const qa = async (question, entries) => {
+  const docs = entries.map((entry) => {
+    return new Document({
+      pageContent: entry.content,
+      metadata: { source: entry.id, date: entry.createdAt },
+    });
+  });
+  const model = new ChatGoogleGenerativeAI({
+    modelName: "gemini-pro",
+    maxOutputTokens: 2048,
+  });
+  const prompt = ChatPromptTemplate.fromTemplate(
+    "Answer the question based on the {entries} and the question is {question}" +
+      "Answer in 100 words or less."
+  );
+
+  const chain = prompt.pipe(model).pipe(new StringOutputParser());
+  console.log(chain);
+  const embeddings = new GoogleGenerativeAIEmbeddings();
+
+  const store = await MemoryVectorStore.fromDocuments(docs, embeddings);
+
+  const relevantDocs = await store.similaritySearch(question);
+
+  const res = await chain.invoke({
+    question,
+    entries: relevantDocs.map((doc) => doc.pageContent),
+  });
+
+  return res;
 };
