@@ -5,7 +5,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Mood Journal",
-  description: "journal to analyze your mood",
+  description: "journal to analyze your mood with AI.",
 };
 
 export default function RootLayout({
