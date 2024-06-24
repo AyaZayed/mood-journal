@@ -3,21 +3,10 @@ import {
   ChatGoogleGenerativeAI,
   GoogleGenerativeAIEmbeddings,
 } from "@langchain/google-genai";
-import { TaskType } from "@google/generative-ai";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { Document } from "langchain/document";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-
-async function makeApiRequest(mood, subject, negative, summary, color) {
-  return {
-    mood: mood,
-    summary: summary,
-    color: color,
-    negative: negative,
-    subject: subject,
-  };
-}
 
 // Function declaration, to pass to the model.
 const analyzeSchema = {
@@ -49,16 +38,20 @@ const analyzeSchema = {
         description:
           "A hexidecimal color code representing The color of the mood of the person who wrote the journal entry.",
       },
+      sentimentScore: {
+        type: "NUMBER",
+        description:
+          "The sentiment score of the mood of the person who wrote the journal entry ranging from -10 to 10. -10 means extremely negative, 0 means neutral and 10 means extremely positive.",
+      },
     },
-    required: ["mood", "subject", "negative", "summary", "color"],
-  },
-};
-
-// Executable function code. Put it in a map keyed by the function name
-// so that you can call it once you get the name string from the model.
-const functions = {
-  analyzeMood: async ({ mood, subject, negative, summary, color }) => {
-    return makeApiRequest(mood, subject, negative, summary, color);
+    required: [
+      "mood",
+      "subject",
+      "negative",
+      "summary",
+      "color",
+      "sentimentScore",
+    ],
   },
 };
 

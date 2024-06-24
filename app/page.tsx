@@ -3,9 +3,8 @@ import Link from "next/link";
 
 export default async function Home() {
   const { userId } = await auth();
-  console.log(userId);
-
   let href = userId ? "/journal" : "/new-user";
+
   return (
     <main className="w-screen h-screen flex items-center justify-center bg-black text-white">
       <div className="text-center flex flex-col items-center gap-10">
