@@ -4,7 +4,6 @@ import Question from "@/components/Question";
 import { getUserByClerkId } from "@/utils/auth";
 import { prisma } from "@/utils/db";
 import Link from "next/link";
-import { qa } from "@/utils/ai";
 
 const getEntries = async () => {
   const user = await getUserByClerkId();
