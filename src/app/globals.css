@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+        :root {
+                /* Define your color variables */
+                --color-white: #ffffff;
+                --color-primary: #0f0c29;
+                --color-secondary: #302b63;
+                --color-accent: #24243e;
+
+                /* Border and ring colors */
+                --border: #e5e7eb;
+                --ring: #3b82f6;
+        }
+}
+
+@layer utilities {
+
+        /* Custom utility classes */
+        .text-custom-white {
+                color: var(--color-white);
+        }
+
+        .bg-gradient-custom {
+                background-image: linear-gradient(to bottom,
+                                var(--color-primary),
+                                var(--color-secondary),
+                                var(--color-accent));
+        }
+}
+
+.cl-footer {
+        background: transparent !important;
+}
+
+.cl-internal-1bpeghk {
+        color: var(--color-white) !important;
+}
+
+.header {
+        height: 100px;
+}
+
+.hero {
+        min-height: calc(100vh - 100px);
+}

@@ -1,34 +1,161 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# M🌕🌑D Journal
+
+A journaling web application that uses artificial intelligence to analyze your entries and track your emotional patterns over time.
+
+## Features
+
+-  **AI-Powered Mood Analysis**: Automatically analyzes journal entries to determine emotional states and sentiment
+-  **Secure Authentication**: User authentication and management powered by Clerk
+-  **Auto-Save**: Automatic saving of journal entries as you write
+-  **Mood Visualization**: Interactive charts and graphs to track mood patterns over time
+-  **Real-time Analysis**: Instant AI feedback on your emotional state using Google's Generative AI
+
+## Tech Stack
+
+### Frontend
+
+-  **Next.js 14** - React framework for production
+-  **React 18** - UI library
+-  **TypeScript** - Type-safe development
+-  **Tailwind CSS** - Utility-first styling
+-  **Recharts** - Data visualization for mood tracking
+
+### Backend & Database
+
+-  **Prisma** - Type-safe database ORM
+-  **PostgreSQL** - Relational database
+
+### AI & NLP
+
+-  **Google Generative AI** - Core AI model for mood analysis
+-  **LangChain** - Framework for building AI applications
+   -  @langchain/core - Core LangChain functionality
+   -  @langchain/google-genai - Google Generative AI integration
+   -  @langchain/google-vertexai - Vertex AI integration
+-  **Zod** - Schema validation for AI responses
+
+### Authentication
+
+-  **Clerk** - Complete authentication solution with user management
+
+### Additional Features
+
+-  **React Autosave** - Automatic saving functionality
+-  **ESLint** - Code quality and consistency
+
+### Testing
+
+-  **Vitest** - Fast unit testing framework
+-  **Testing Library** - React component testing
+-  **JSDOM** - DOM implementation for testing
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+-  Node.js 20.x or higher
+-  A database (PostgreSQL, MySQL, or SQLite)
+-  Clerk account for authentication
+-  Google AI API key
+
+### Installation
+
+1. Clone the repository
+
+```bash
+git clone <your-repo-url>
+cd <project-name>
+```
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Set up environment variables
+
+```bash
+cp .env.example .env
+```
+
+Add your environment variables:
+
+```
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_key
+CLERK_SECRET_KEY=your_clerk_secret
+
+# Database
+DATABASE_URL="your_database_url"
+
+# Google AI
+GOOGLE_AI_API_KEY=your_google_ai_key
+```
+
+4. Set up the database
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+5. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+1. **Sign Up/Login**: Create an account or log in using Clerk authentication
+2. **Write**: Start writing your journal entries
+3. **Analyze**: The AI automatically analyzes your entry and determines your mood
+4. **Track**: View your mood patterns over time through interactive charts
+5. **Reflect**: Use insights to understand your emotional journey
 
-## Learn More
+## Development
 
-To learn more about Next.js, take a look at the following resources:
+### Running Tests
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run test
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Database Management
 
-## Deploy on Vercel
+```bash
+# Create a migration
+npx prisma migrate dev
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Open Prisma Studio
+npx prisma studio
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Linting
+
+```bash
+npm run lint
+```
+
+## Deployment
+
+This application can be deployed on Vercel, the platform from the creators of Next.js:
+
+1. Push your code to GitHub
+2. Import your repository to Vercel
+3. Add environment variables
+4. Deploy
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Acknowledgments
+
+-  Built with [Next.js](https://nextjs.org/)
+-  AI powered by [Google Generative AI](https://ai.google.dev/)
+-  Authentication by [Clerk](https://clerk.com/)
+-  Database management with [Prisma](https://www.prisma.io/)
