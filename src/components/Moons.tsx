@@ -10,18 +10,6 @@ export default function Moons() {
                Your Moods Have Phases
             </h2>
             <div className="moods grid md:grid-cols-3 gap-20 content-between">
-               {/* <div className="phase flex flex-col items-center gap-2">
-                  <h3 className="text-[100px]">🌑</h3>
-                  <h4 className="text-amber-400 text-2xl font-semibold">
-                     Blank Slate
-                  </h4>
-               </div>
-               <div className="phase flex flex-col items-center gap-2">
-                  <h3 className="text-[100px]">🌒</h3>
-                  <h4 className="text-amber-400 text-2xl font-semibold">
-                     New Beginnings
-                  </h4>
-               </div> */}
                <div className="phase flex flex-col items-center gap-3">
                   <Image
                      src="/quarter-right.svg"
@@ -61,7 +49,7 @@ export default function Moons() {
          <div className="services grid md:grid-cols-3 gap-10 mt-20">
             <GlassCard className="shadow-2xl p-6" variant="subtle">
                <Image
-                  src="/quarter-right.svg"
+                  src="/journal.svg"
                   alt="journal"
                   width={100}
                   height={100}
@@ -73,12 +61,7 @@ export default function Moons() {
                </p>
             </GlassCard>
             <GlassCard className="shadow-2xl p-6" variant="subtle">
-               <Image
-                  src="/quarter-right.svg"
-                  alt="journal"
-                  width={100}
-                  height={100}
-               />
+               <Image src="/bulb.svg" alt="bulb" width={100} height={100} />
                <h4 className="font-bold  tracking-wide">AI Mood Analysis</h4>
                <p className="mt-2 opacity-70">
                   Advanced AI analyzes your entries to identify emotional
@@ -87,8 +70,8 @@ export default function Moons() {
             </GlassCard>
             <GlassCard className="shadow-2xl p-6" variant="subtle">
                <Image
-                  src="/quarter-right.svg"
-                  alt="journal"
+                  src="/progress.svg"
+                  alt="progress"
                   width={100}
                   height={100}
                />

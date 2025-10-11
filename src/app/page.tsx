@@ -20,7 +20,7 @@ export default async function Home() {
             </Link>
          </header>
          <main className="home">
-            <Hero />
+            <Hero href={href} />
             <Moons />
          </main>
       </>

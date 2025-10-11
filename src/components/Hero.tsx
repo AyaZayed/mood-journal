@@ -3,9 +3,7 @@ import Link from "next/link";
 import React from "react";
 import { auth } from "@clerk/nextjs/server";
 
-export default async function Hero() {
-   const { userId } = await auth();
-   let href = userId ? "/journal" : "/new-user";
+export default async function Hero({ href }: { href: string }) {
    return (
       <section className="hero flex items-center justify-center">
          <div className="hero md:w-2/3 px-6 content flex flex-col justify-center items-center text-center gap-10">

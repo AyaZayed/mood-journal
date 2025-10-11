@@ -7,100 +7,73 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { Document } from "langchain/document";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
+import type { AnalysisData } from "@/src/types/analysis";
+import { log } from "console";
 
-// Function declaration, to pass to the model.
-import { FunctionDeclarationSchemaType } from "@google/generative-ai";
-
-const analyzeSchema = {
-   name: "analyzeMood",
-   parameters: {
-      type: FunctionDeclarationSchemaType.OBJECT,
-      description:
-         "Analyze the mood of the person who wrote the journal entry.",
-      properties: {
-         mood: {
-            type: FunctionDeclarationSchemaType.STRING,
-            description: "The mood of the person who wrote the journal entry.",
-         },
-         subject: {
-            type: FunctionDeclarationSchemaType.STRING,
-            description: "The subject of the journal entry.",
-         },
-         negative: {
-            type: FunctionDeclarationSchemaType.BOOLEAN,
-            description:
-               "Whether the mood of the person who wrote the journal entry is negative.",
-         },
-         summary: {
-            type: FunctionDeclarationSchemaType.STRING,
-            description:
-               "A summary of the journal entry from the author's perspective.",
-         },
-         color: {
-            type: FunctionDeclarationSchemaType.STRING,
-            description: "A hex color code representing the mood.",
-         },
-         sentimentScore: {
-            type: FunctionDeclarationSchemaType.NUMBER,
-            description:
-               "Sentiment score from -10 (very negative) to 10 (very positive).",
-         },
-      },
-      required: [
-         "mood",
-         "subject",
-         "negative",
-         "summary",
-         "color",
-         "sentimentScore",
-      ],
-   },
-};
-
-// Access your API key as an environment variable (see "Set up your API key" above)
+// Access your API key as an environment variable
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
-// ...
-
-const generativeModel = genAI.getGenerativeModel({
-   // Use a model that supports function calling, like a Gemini 1.5 model
-   model: "gemini-1.5-flash",
-
-   // Specify the function declaration.
-
-   tools: [
-      {
-         functionDeclarations: [analyzeSchema],
-      },
-   ],
-});
-
-import type { AnalysisData } from "@/src/types/analysis";
-
 export const analyze = async (entry = ""): Promise<AnalysisData> => {
-   const chat = generativeModel.startChat();
-   const prompt = `Analyze this journal entry:` + entry;
+   // ✅ Use gemini-2.5-flash - stable and fast model
+   const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+   });
 
-   const result = await chat.sendMessage(prompt);
+   const prompt = `Analyze this journal entry and respond ONLY with a valid JSON object (no markdown, no code blocks, no extra text) with these exact fields:
+{
+  "mood": "the mood of the person (e.g., happy, sad, anxious, excited)",
+  "subject": "the main subject of the entry",
+  "negative": true or false (whether the mood is negative),
+  "summary": "a brief summary from the author's perspective (2-3 sentences)",
+  "color": "a hex color code representing the mood (e.g., #FF6B6B for sad, #4ECDC4 for happy)",
+  "sentimentScore": a number from -10 (very negative) to 10 (very positive)
+}
 
-   const calls = result.response.functionCalls?.();
-   const call = calls?.[0];
+Journal entry: "${entry}"
 
-   if (!call || !call.args) {
-      throw new Error("No function call or arguments returned by model.");
+Respond with ONLY the JSON object:`;
+
+   try {
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      const text = response.text();
+
+      // Clean the response - remove markdown code blocks if present
+      let cleanedText = text.trim();
+      if (cleanedText.startsWith("```json")) {
+         cleanedText = cleanedText
+            .replace(/```json\n?/g, "")
+            .replace(/```\n?$/g, "");
+      } else if (cleanedText.startsWith("```")) {
+         cleanedText = cleanedText
+            .replace(/```\n?/g, "")
+            .replace(/```\n?$/g, "");
+      }
+
+      const parsed = JSON.parse(cleanedText) as Partial<AnalysisData>;
+
+      // ✅ Validate and fill missing fields with defaults
+      return {
+         mood: parsed.mood ?? "neutral",
+         subject: parsed.subject ?? "General",
+         negative: parsed.negative ?? false,
+         summary: parsed.summary ?? "No summary available.",
+         color: parsed.color ?? "#cccccc",
+         sentimentScore: parsed.sentimentScore ?? 0,
+      };
+   } catch (error) {
+      console.error("Error in analyze function:", error);
+
+      // Return default values if anything fails
+      return {
+         mood: "neutral",
+         subject: "General",
+         negative: false,
+         summary: entry.slice(0, 100) + "...",
+         color: "#cccccc",
+         sentimentScore: 0,
+      };
    }
-
-   const args = call.args as Partial<AnalysisData>;
-
-   // ✅ Validate and fill missing fields with defaults
-   return {
-      mood: args.mood ?? "neutral",
-      subject: args.subject ?? "General",
-      negative: args.negative ?? false,
-      summary: args.summary ?? "No summary available.",
-      color: args.color ?? "#cccccc",
-      sentimentScore: args.sentimentScore ?? 0,
-   };
 };
 
 export const qa = async (
@@ -111,25 +84,34 @@ export const qa = async (
       createdAt: Date;
    }[]
 ) => {
-   const docs = entries.map((entry) => {
-      return new Document({
-         pageContent: entry.content,
-         metadata: { source: entry.id, date: entry.createdAt },
+   const docs = entries
+      .filter((entry) => entry?.content)
+      .map((entry) => {
+         return new Document({
+            pageContent: entry.content,
+            metadata: { source: entry.id, date: entry.createdAt },
+         });
       });
-   });
 
+   log("Docs for QA: 📝", docs);
    const model = new ChatGoogleGenerativeAI({
-      modelName: "gemini-pro",
+      modelName: "gemini-2.5-flash", // ✅ Updated to available model
       maxOutputTokens: 2048,
+      apiKey: process.env.GOOGLE_API_KEY,
    });
 
    const prompt = ChatPromptTemplate.fromTemplate(
       "Answer the question based on these journal entries:\n{entries}\n\nQuestion: {question}\nAnswer in 100 words or less."
    );
 
+   log("QA Prompt: ❓", prompt);
+
    const chain = prompt.pipe(model).pipe(new StringOutputParser());
 
-   const embeddings = new GoogleGenerativeAIEmbeddings();
+   const embeddings = new GoogleGenerativeAIEmbeddings({
+      apiKey: process.env.GOOGLE_API_KEY,
+   });
+
    const store = await MemoryVectorStore.fromDocuments(docs, embeddings);
 
    const relevantDocs = await store.similaritySearch(question);
@@ -138,6 +120,8 @@ export const qa = async (
       question,
       entries: relevantDocs.map((doc) => doc.pageContent).join("\n\n"),
    });
+
+   log("QA Response: 🤖", res);
 
    return res;
 };

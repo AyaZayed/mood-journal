@@ -1,6 +1,7 @@
 import HistoryChart from "@/src/components/HistoryChart";
 import { getUserByClerkId } from "@/src/utils/auth";
 import { prisma } from "@/src/utils/db";
+import { log } from "console";
 
 const getData = async () => {
    const user = await getUserByClerkId();
@@ -23,14 +24,15 @@ const getData = async () => {
 const historyPage = async () => {
    const { analyses, averageAnalysis } = await getData();
    return (
-      <div className="w-full h-full">
+      <div className="">
          <h1>History</h1>
-         {analyses.map((analysis) => (
-            <div key={analysis.id}>{analysis.sentimentScore}</div>
-         ))}
+         {analyses.length > 0 &&
+            analyses.map((analysis) => (
+               <div key={analysis.id}>{analysis.sentimentScore}</div>
+            ))}
          <div>average: {averageAnalysis}</div>
-         <div className="w-full h-full">
-            <HistoryChart data={analyses} />
+         <div className="h-full w-full">
+            {analyses.length > 0 && <HistoryChart data={analyses} />}
          </div>
       </div>
    );

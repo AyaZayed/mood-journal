@@ -1,3 +1,5 @@
+import { JournalEntry } from "@prisma/client";
+
 export type AnalysisData = {
    mood: string;
    subject: string;
@@ -14,3 +16,5 @@ export type Analysis = AnalysisData & {
    createdAt: Date;
    updatedAt: Date;
 };
+
+export type EntryWithAnalysis = Analysis & JournalEntry;

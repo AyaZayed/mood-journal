@@ -18,7 +18,8 @@ export default async function RootLayout({
          <html lang="en" className={`scroll-smooth ${inter.className}`}>
             <body
                className={`min-h-screen bg-gradient-to-b from-brand-dark
-                via-brand-purple to-brand-blue text-white`}>
+                via-brand-purple to-brand-blue text-white
+                selection:bg-amber-200 selection:text-brand-purple bg-`}>
                {children}
             </body>
          </html>
