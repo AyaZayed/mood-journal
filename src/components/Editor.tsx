@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useAutosave } from "react-autosave";
 import { updateEntry } from "@/src/utils/api";
+import { GlassInput } from "./GlassComponents";
 
 const Editor = ({ entry }: { entry: any }) => {
    const [content, setContent] = useState(entry?.content);
@@ -50,12 +51,20 @@ const Editor = ({ entry }: { entry: any }) => {
             {isSaving && (
                <div className="text-sm text-gray-500 p-2">Saving...</div>
             )}
-            <textarea
+            {/* <textarea
                className="w-full h-full p-8 outline-none text-black"
                value={content}
                onChange={(e) => setContent(e.target.value)}
                placeholder="Start writing your journal entry..."
-            />
+            /> */}
+            <div className="p-5 h-full">
+               <GlassInput
+                  className="w-full h-full p-8 outline-none text-black"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Start writing your journal entry..."
+               />
+            </div>
          </div>
          <div title="sidebar" className="border-l border-black/10 p-6">
             <h2 className="text-3xl mb-4" style={{ color: color }}>
@@ -64,7 +73,7 @@ const Editor = ({ entry }: { entry: any }) => {
             <ul className="space-y-2">
                {analysisData.map(({ name, value }) => (
                   <li key={name} className="flex flex-col">
-                     <span className="font-semibold text-sm text-gray-600">
+                     <span className="font-semibold text-sm text-amber-200">
                         {name}
                      </span>
                      <span className="text-base">{value}</span>

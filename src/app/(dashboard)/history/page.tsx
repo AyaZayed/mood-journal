@@ -24,14 +24,14 @@ const getData = async () => {
 const historyPage = async () => {
    const { analyses, averageAnalysis } = await getData();
    return (
-      <div className="">
-         <h1>History</h1>
-         {analyses.length > 0 &&
+      <div className="p-6">
+         <h1 className="font-bold text-amber-200 text-2xl">History</h1>
+         {/* {analyses.length > 0 &&
             analyses.map((analysis) => (
                <div key={analysis.id}>{analysis.sentimentScore}</div>
-            ))}
-         <div>average: {averageAnalysis}</div>
-         <div className="h-full w-full">
+            ))} */}
+         <div>Average: {averageAnalysis}</div>
+         <div className="h-[400px] w-full">
             {analyses.length > 0 && <HistoryChart data={analyses} />}
          </div>
       </div>

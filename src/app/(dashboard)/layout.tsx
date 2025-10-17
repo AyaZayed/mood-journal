@@ -20,15 +20,17 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       <main className="">
          <header>
             <GlassContainer
-               className="flex items-center gap-4 px-6 py-4 rounded-none justify-between"
+               className="flex items-center gap-4 px-6 py-4 rounded-[0px] justify-between"
                variant="subtle">
-               <Image
-                  src="/logo.svg"
-                  alt="logo"
-                  width={100}
-                  height={100}
-                  className="w-[100px] md:w-[150px]"
-               />
+               <Link href="/">
+                  <Image
+                     src="/logo.svg"
+                     alt="logo"
+                     width={100}
+                     height={100}
+                     className="w-[100px] md:w-[150px]"
+                  />
+               </Link>
                <nav className="flex gap-6 items-center">
                   <ul className="flex gap-4 items-center">
                      {links.map((link) => (

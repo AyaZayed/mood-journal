@@ -72,7 +72,8 @@ export const GlassCard: React.FC<GlassCardProps> = ({
 };
 
 // Glass Input Component
-interface GlassInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface GlassInputProps
+   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
    variant?: "default" | "subtle" | "strong";
 }
 
@@ -88,7 +89,7 @@ export const GlassInput: React.FC<GlassInputProps> = ({
    };
 
    return (
-      <input
+      <textarea
          className={`
         w-full rounded-md border backdrop-blur-md
         px-3 py-2 text-sm
@@ -99,8 +100,7 @@ export const GlassInput: React.FC<GlassInputProps> = ({
         ${variants[variant]}
         ${className}
       `}
-         {...props}
-      />
+         {...props}></textarea>
    );
 };
 
